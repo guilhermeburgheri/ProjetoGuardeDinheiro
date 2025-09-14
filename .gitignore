@@ -1,0 +1,17 @@
+# Dependências
+node_modules/
+
+# React
+frontend/build/
+
+# lectron
+dist/
+out/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Banco SQLite
+*.db
