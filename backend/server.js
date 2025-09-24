@@ -1,19 +1,50 @@
-const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
-const cors = require('cors');
+const express = require("express");
+const bodyParser = require("body-parser");
+const db = require("./db");
+const authRoutes = require("./routes/authRoutes");
+const expenseRoutes = require("./routes/expenseRoutes");
+const savingRoutes = require("./routes/savingRoutes");
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
 
-// BD SQLite
-const db = new sqlite3.Database('./financas.db');
+// cria tabelas se não existirem
+db.serialize(() => {
+  db.run(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE,
+      password TEXT
+    )
+  `);
 
-// Teste de rota
-app.get('/api/teste', (req, res) => {
-  res.json({ mensagem: 'API funcionando!' });
+  db.run(`
+    CREATE TABLE IF NOT EXISTS expenses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      description TEXT,
+      amount REAL,
+      fixed INTEGER DEFAULT 0,
+      date TEXT,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS saving_goals (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      goal_percentage REAL,
+      salary REAL,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+  `);
 });
 
-app.listen(3001, () => {
-  console.log('Backend rodando em http://localhost:3001');
-});
+// rotas
+app.use("/auth", authRoutes);
+app.use("/expenses", expenseRoutes);
+app.use("/savings", savingRoutes);
+
+const PORT = 3001;
+app.listen(PORT, () => console.log(`Backend rodando na porta ${PORT}`));

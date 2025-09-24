@@ -15,3 +15,5 @@ yarn-error.log*
 
 # Banco SQLite
 *.db
+*.sqlite
+*.sqlite3
