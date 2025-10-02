@@ -4,8 +4,10 @@ const db = require("./db");
 const authRoutes = require("./routes/authRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const savingRoutes = require("./routes/savingRoutes");
+const cors = require("cors");
 
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 
 // cria tabelas se não existirem

@@ -19,7 +19,12 @@ router.post("/", (req, res) => {
 // ver meta
 router.get("/:userId", (req, res) => {
   db.get("SELECT * FROM saving_goals WHERE user_id = ?", [req.params.userId], (err, row) => {
+
     if (err) return res.status(500).json({ error: err.message });
+    
+    //Garantir que o projeto não quebre se o usuário não tiver meta definida
+    if (!row) return res.json({});
+    
     res.json(row);
   });
 });
