@@ -23,10 +23,10 @@ router.post("/login", (req, res) => {
   const { username, password } = req.body;
 
   db.get("SELECT * FROM users WHERE username = ?", [username], async (err, row) => {
-    if (!row) return res.status(400).json({ error: "Usuário não encontrado" });
+    if (!row) return res.status(400).json({ error: "Usuário ou senha incorretos." });
 
     const valid = await bcrypt.compare(password, row.password);
-    if (!valid) return res.status(401).json({ error: "Senha inválida" });
+    if (!valid) return res.status(401).json({ error: "Usuário ou senha incorretos." });
 
     res.json({ message: "Login bem-sucedido", userId: row.id });
   });

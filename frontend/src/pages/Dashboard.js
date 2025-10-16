@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getExpenses, addExpense, getSavings, setSavings } from "../api";
+import { getExpenses, addExpense, deleteExpense, getSavings, setSavings } from "../api";
 
 export default function Dashboard({ user, setUser }) {
   const [expenses, setExpenses] = useState([]);
@@ -34,7 +34,12 @@ export default function Dashboard({ user, setUser }) {
       <button onClick={handleAddExpense}>Adicionar gasto</button>
       <ul>
         {expenses.map(e => (
-          <li key={e.id}>{e.description} - R${e.amount} {e.fixed ? "(fixo)" : ""}</li>
+          <li key={e.id}>{e.description} - R${e.amount} {e.fixed ? "(fixo)" : ""}
+            <button onClick={async () => {
+              await deleteExpense(e.id);
+              getExpenses(user.id).then(setExpenses);
+            }}>🗑️</button>
+          </li>
         ))}
       </ul>
 

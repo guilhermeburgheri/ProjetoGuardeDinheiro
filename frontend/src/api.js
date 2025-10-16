@@ -32,6 +32,11 @@ export async function addExpense(userId, description, amount, fixed) {
     return res.json();
 }
 
+export async function deleteExpense(id) {
+  const res = await fetch(`${API_URL}/expenses/${id}`, { method: "DELETE" });
+  return res.json();
+}
+
 export async function getSavings(userId) {
     const res = await fetch(`${API_URL}/savings/${userId}`);
     if (!res.ok) return null;

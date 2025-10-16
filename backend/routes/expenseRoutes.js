@@ -17,6 +17,16 @@ router.post("/", (req, res) => {
   );
 });
 
+// excluir gasto
+router.delete("/:id", (req, res) => {
+  const id = req.params.id;
+  db.run("DELETE FROM expenses WHERE id = ?", [id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).json({ error: "Gasto não encontrado" });
+    res.json({ message: "Gasto excluído com sucesso!" });
+  });
+});
+
 // listar gastos do usuário
 router.get("/:userId", (req, res) => {
   db.all("SELECT * FROM expenses WHERE user_id = ?", [req.params.userId], (err, rows) => {
