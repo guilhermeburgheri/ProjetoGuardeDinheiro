@@ -15,11 +15,18 @@ export default function Login({ setUser, setPage }) {
     }
   }
 
+  function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleLogin();
+    }
+  }
+
   return (
     <div>
       <h2>Login</h2>
-      <input placeholder="Usuário" onChange={e => setUsername(e.target.value)} />
-      <input type="password" placeholder="Senha" onChange={e => setPassword(e.target.value)} />
+      <input placeholder="Usuário" onChange={e => setUsername(e.target.value)} onKeyDown={handleKeyPress} />
+      <input type="password" placeholder="Senha" onChange={e => setPassword(e.target.value)} onKeyDown={handleKeyPress} />
       <button onClick={handleLogin}>Entrar</button>
       {error && <p style={{color:"red"}}>{error}</p>}
       <p onClick={() => setPage("register")}>Não tem conta? Registrar</p>
