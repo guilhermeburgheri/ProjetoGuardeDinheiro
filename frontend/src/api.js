@@ -55,3 +55,14 @@ export async function setSavings(userId, goal_percentage, salary) {
     });
     return res.json();
 }
+
+export async function getUsers(currentUser) {
+  const res = await fetch(`${API_URL}/auth/users?username=${currentUser}`);
+  return res.json();
+}
+
+export async function deleteUser(currentUser, id) {
+  const res = await fetch(`${API_URL}/auth/users/${id}?username=${currentUser}`, { method: "DELETE" });
+  return res.json();
+}
+

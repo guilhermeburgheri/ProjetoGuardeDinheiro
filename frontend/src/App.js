@@ -2,8 +2,9 @@ import { useState } from "react";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import ManageUsers from "./pages/ManageUsers";
 
-function App() {
+export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState("login");
 
@@ -15,7 +16,9 @@ function App() {
     );
   }
 
-  return <Dashboard user={user} setUser={setUser} />;
-}
+  if (page === "manageUsers") {
+    return <ManageUsers user={user} setPage={setPage} />;
+  }
 
-export default App;
+  return <Dashboard user={user} setUser={setUser} setPage={setPage} />;
+}

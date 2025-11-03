@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getExpenses, addExpense, deleteExpense, getSavings, setSavings } from "../api";
 
-export default function Dashboard({ user, setUser }) {
+export default function Dashboard({ user, setUser, setPage }) {
   const [expenses, setExpenses] = useState([]);
   const [savings, setSavingsData] = useState(null);
 
@@ -25,18 +25,21 @@ export default function Dashboard({ user, setUser }) {
     getSavings(user.id).then(setSavingsData);
   }
 
-  // cálculo dos valores finais
   const totalGastos = expenses.reduce((acc, e) => acc + Number(e.amount || 0), 0);
   const salario = savings?.salary || 0;
   const percentualGuardar = savings?.goal_percentage || 0;
   const valorGuardar = (salario * percentualGuardar) / 100;
-  const sobraAposGastos = valorGuardar - totalGastos;
+  const sobraAposGastos = salario - totalGastos - valorGuardar;
 
   return (
     <div style={{ maxWidth: 500, margin: "0 auto", fontFamily: "Arial" }}>
       <h2>Bem-vindo, {user.username}!</h2>
       <button onClick={() => setUser(null)}>Sair</button>
-
+      {user.username === "admin" && (
+        <button onClick={() => setPage("manageUsers")}>
+          Gerenciar usuários
+        </button>
+      )}
       <hr />
       <h3>Meta de Poupança</h3>
       <button onClick={handleSetSavings}>Definir / Atualizar meta</button>
@@ -77,7 +80,7 @@ export default function Dashboard({ user, setUser }) {
           <p><b>Guardar:</b> R${valorGuardar.toFixed(2)}</p>
           <p><b>Gastos:</b> R${totalGastos.toFixed(2)}</p>
           <p>
-            <b>Restante para investir:</b>{" "}
+            <b>Restante para gastar (com moderação):</b>{" "}
             <span style={{ color: sobraAposGastos >= 0 ? "green" : "red" }}>
               R${sobraAposGastos.toFixed(2)}
             </span>

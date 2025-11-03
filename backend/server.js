@@ -43,6 +43,20 @@ db.serialize(() => {
   `);
 });
 
+// Criando usuário admin
+const bcrypt = require("bcryptjs");
+
+db.get("SELECT * FROM users WHERE username = 'admin'", async (err, row) => {
+  if (!row) {
+    const hashed = await bcrypt.hash("admin123", 10);
+    db.run("INSERT INTO users (username, password) VALUES (?, ?)", ["admin", hashed], (e2) => {
+      if (e2) console.error("Erro ao criar admin:", e2);
+      else console.log("✅ Usuário admin criado (senha: admin123)");
+    });
+  }
+});
+
+
 // rotas
 app.use("/auth", authRoutes);
 app.use("/expenses", expenseRoutes);

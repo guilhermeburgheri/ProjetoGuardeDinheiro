@@ -3,6 +3,35 @@ const bcrypt = require("bcryptjs");
 const db = require("../db");
 const router = express.Router();
 
+// listar todos os usuários (somente admin)
+router.get("/users", (req, res) => {
+  const { username } = req.query;
+
+  if (username !== "admin") {
+    return res.status(403).json({ error: "Acesso negado. Somente o admin pode ver usuários." });
+  }
+
+  db.all("SELECT id, username FROM users WHERE username != 'admin'", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+
+// excluir usuário (somente admin)
+router.delete("/users/:id", (req, res) => {
+  const { username } = req.query;
+
+  if (username !== "admin") {
+    return res.status(403).json({ error: "Acesso negado. Somente o admin pode excluir usuários." });
+  }
+
+  db.run("DELETE FROM users WHERE id = ?", [req.params.id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).json({ error: "Usuário não encontrado" });
+    res.json({ message: "Usuário excluído com sucesso!" });
+  });
+});
+
 // registro
 router.post("/register", async (req, res) => {
   const { username, password } = req.body;
