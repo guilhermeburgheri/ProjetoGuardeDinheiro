@@ -12,9 +12,28 @@ export default function Dashboard({ user, setUser, setPage }) {
 
   async function handleAddExpense() {
     const desc = prompt("Descrição:");
+    if (!desc) return;
     const amount = parseFloat(prompt("Valor:"));
-    const fixed = window.confirm("É gasto fixo?");
-    await addExpense(user.id, desc, amount, fixed);
+    if (isNaN(amount)) return;
+
+    const recurrence = prompt(
+      "Tipo de gasto:\n1 - Só neste mês\n2 - Fixo todo mês\n3 - Por X meses"
+    );
+
+    let recurrence_type = "once";
+    let months_duration = null;
+
+    if (recurrence === "2") {
+      recurrence_type = "fixed";
+    } else if (recurrence === "3") {
+      recurrence_type = "months";
+      const qtd = parseInt(prompt("Por quantos meses?"), 10);
+      months_duration = isNaN(qtd) ? 1 : qtd;
+    }
+
+    const fixed = recurrence === "2";
+
+    await addExpense(user.id, desc, amount, fixed, recurrence_type, months_duration);
     getExpenses(user.id).then(setExpenses);
   }
 
@@ -54,21 +73,30 @@ export default function Dashboard({ user, setUser, setPage }) {
       <h3>Gastos</h3>
       <button onClick={handleAddExpense}>Adicionar gasto</button>
       <ul>
-        {expenses.map((e) => (
-          <li key={e.id}>
-            {e.description} - R${e.amount}
-            {e.fixed ? " (fixo)" : ""}
-            <button
-              style={{ marginLeft: 8 }}
-              onClick={async () => {
-                await deleteExpense(e.id);
-                getExpenses(user.id).then(setExpenses);
-              }}
-            >
-              🗑️
-            </button>
-          </li>
-        ))}
+        {expenses.map((e) => {
+          let label = `${e.description} - R$${e.amount}`;
+
+          if (e.recurrence_type === "months" && e.months_duration) {
+            label += ` (${e.months_duration}x)`;
+          } else if (e.recurrence_type === "fixed") {
+            label += " (fixo)";
+          }
+
+          return (
+            <li key={e.id}>
+              {label}
+              <button
+                style={{ marginLeft: 8 }}
+                onClick={async () => {
+                  await deleteExpense(e.id);
+                  getExpenses(user.id).then(setExpenses);
+                }}
+              >
+                🗑️
+              </button>
+            </li>
+          );
+        })}
       </ul>
 
       <p><b>Total de gastos:</b> R${totalGastos.toFixed(2)}</p>

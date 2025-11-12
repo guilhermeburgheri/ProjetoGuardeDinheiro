@@ -41,6 +41,25 @@ db.serialize(() => {
       FOREIGN KEY(user_id) REFERENCES users(id)
     )
   `);
+  
+  db.run(
+    "ALTER TABLE expenses ADD COLUMN recurrence_type TEXT",
+    (err) => {
+      // se já existir, ignoramos
+      if (err && !err.message.includes("duplicate column")) {
+        console.log("Erro ao adicionar recurrence_type:", err.message);
+      }
+    }
+  );
+
+  db.run(
+    "ALTER TABLE expenses ADD COLUMN months_duration INTEGER",
+    (err) => {
+      if (err && !err.message.includes("duplicate column")) {
+        console.log("Erro ao adicionar months_duration:", err.message);
+      }
+    }
+  );
 });
 
 // Criando usuário admin
