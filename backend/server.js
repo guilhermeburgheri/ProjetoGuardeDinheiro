@@ -4,13 +4,13 @@ const db = require("./db");
 const authRoutes = require("./routes/authRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const savingRoutes = require("./routes/savingRoutes");
+const reportsRoutes = require("./routes/reportsRoutes");
 const cors = require("cors");
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// cria tabelas se não existirem
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
@@ -45,7 +45,6 @@ db.serialize(() => {
   db.run(
     "ALTER TABLE expenses ADD COLUMN recurrence_type TEXT",
     (err) => {
-      // se já existir, ignoramos
       if (err && !err.message.includes("duplicate column")) {
         console.log("Erro ao adicionar recurrence_type:", err.message);
       }
@@ -62,7 +61,6 @@ db.serialize(() => {
   );
 });
 
-// Criando usuário admin
 const bcrypt = require("bcryptjs");
 
 db.get("SELECT * FROM users WHERE username = 'admin'", async (err, row) => {
@@ -80,6 +78,7 @@ db.get("SELECT * FROM users WHERE username = 'admin'", async (err, row) => {
 app.use("/auth", authRoutes);
 app.use("/expenses", expenseRoutes);
 app.use("/savings", savingRoutes);
+app.use("/reports", reportsRoutes);
 
 const PORT = 3001;
 app.listen(PORT, () => console.log(`Backend rodando na porta ${PORT}`));

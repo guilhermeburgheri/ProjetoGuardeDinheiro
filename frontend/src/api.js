@@ -56,6 +56,11 @@ export async function setSavings(userId, goal_percentage, salary) {
     return res.json();
 }
 
+export async function getMonthlyExpenses(userId, year) {
+  const res = await fetch(`${API_URL}/reports/monthly-expenses?userId=${userId}&year=${year}`);
+  return res.json();
+}
+
 export async function getUsers(currentUser) {
   const res = await fetch(`${API_URL}/auth/users?username=${currentUser}`);
   return res.json();

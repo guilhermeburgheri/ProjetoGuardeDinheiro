@@ -54,6 +54,11 @@ export default function Dashboard({ user, setUser, setPage }) {
     <div style={{ maxWidth: 500, margin: "0 auto", fontFamily: "Arial" }}>
       <h2>Bem-vindo, {user.username}!</h2>
       <button onClick={() => setUser(null)}>Sair</button>
+      {user && (
+        <button onClick={() => setPage("compare")} style={{ marginLeft: 8 }}>
+          Comparar meses
+        </button>
+      )}
       {user.username === "admin" && (
         <button onClick={() => setPage("manageUsers")}>
           Gerenciar usuários
