@@ -17,12 +17,22 @@ export default function App() {
     );
   }
 
-  if (page === "manageUsers") {
-    return <ManageUsers user={user} setPage={setPage} />;
+  if (page === "dashboard") {
+    return <Dashboard user={user} setUser={setUser} setPage={setPage} />;
   }
 
   if (page === "compare") {
-  return <CompareMonths user={user} setPage={setPage} />;
+    return (
+      <CompareMonths
+        user={user}
+        setPage={setPage}
+        setUser={setUser}
+      />
+    );
+  }
+
+if (page === "manageUsers") {
+  return <ManageUsers user={user} setPage={setPage} setUser={setUser} />;
 }
 
   return <Dashboard user={user} setUser={setUser} setPage={setPage} />;
