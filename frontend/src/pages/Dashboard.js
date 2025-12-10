@@ -16,6 +16,12 @@ const recurrenceLabel = (e) => {
   return "Somente esse mês";
 };
 
+const brl = (v) =>
+  Number(v || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
 export default function Dashboard({ user, setUser, setPage }) {
   const { enqueueSnackbar } = useSnackbar();
   const [expenses, setExpenses] = useState([]);
@@ -76,10 +82,10 @@ export default function Dashboard({ user, setUser, setPage }) {
                   <Button size="small" startIcon={<SavingsIcon />} variant="contained" onClick={() => setOpenSavings(true)}>Definir</Button>
                 </Stack>
                 <Typography mt={2} color="text.secondary">Salário</Typography>
-                <Typography variant="h5">R${salario.toFixed(2)}</Typography>
+                <Typography variant="h5">{brl(salario)}</Typography>
                 <Typography mt={1} color="text.secondary">% Guardar</Typography>
                 <Typography variant="h5">{percentualGuardar}%</Typography>
-                <Chip sx={{ mt: 2 }} color="secondary" label={`Guardar R$ ${valorGuardar.toFixed(2)}`} />
+                <Chip sx={{ mt: 2 }} color="secondary" label={`Guardar ${brl(valorGuardar)}`} />
               </CardContent>
             </Card>
           </Grid>
@@ -88,7 +94,7 @@ export default function Dashboard({ user, setUser, setPage }) {
             <Card elevation={0} sx={{ border: "1px solid #eee" }}>
               <CardContent>
                 <Typography variant="h6">Gastos do mês</Typography>
-                <Typography variant="h3" sx={{ mt: 1 }}>R${totalGastos.toFixed(2)}</Typography>
+                <Typography variant="h5">{brl(salario)}</Typography>
                 <Button sx={{ mt: 2 }} startIcon={<AddIcon />} variant="contained" onClick={() => setOpenExpense(true)}>
                   Adicionar gasto
                 </Button>
@@ -99,9 +105,9 @@ export default function Dashboard({ user, setUser, setPage }) {
           <Grid item xs={12} md={4}>
             <Card elevation={0} sx={{ border: "1px solid #eee" }}>
               <CardContent>
-                <Typography variant="h6">Resultado</Typography>
+                <Typography variant="h6">Saldo</Typography>
                 <Typography variant="h3" color={sobraAposGastos >= 0 ? "success.main" : "error.main"} sx={{ mt: 1 }}>
-                  R${sobraAposGastos.toFixed(2)}
+                  {brl(sobraAposGastos)}
                 </Typography>
                 <Typography color="text.secondary">Restante para se divertir com moderação</Typography>
               </CardContent>
@@ -130,7 +136,7 @@ export default function Dashboard({ user, setUser, setPage }) {
                     {expenses.map((e) => (
                       <TableRow key={e.id} hover>
                         <TableCell>{e.description}</TableCell>
-                        <TableCell align="right">R${Number(e.amount).toFixed(2)}</TableCell>
+                        <TableCell align="right">{brl(e.amount)}</TableCell>
                         <TableCell align="center">
                           <Chip
                             size="small"

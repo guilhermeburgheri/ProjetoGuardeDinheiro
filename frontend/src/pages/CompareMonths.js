@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import { getMonthlyExpenses } from "../api";
-import {
-  Container, Card, CardContent, Typography, Table, TableHead, TableRow,
-  TableCell, TableBody, CircularProgress, Box, Stack, TextField, Divider
-} from "@mui/material";
+import { Container, Card, CardContent, Typography, Table, TableHead, TableRow, TableCell, TableBody, CircularProgress, Box, Stack, TextField, Divider } from "@mui/material";
 import Navbar from "../components/Navbar";
 
 export default function CompareMonths({ user, setPage, setUser }) {
@@ -97,41 +94,74 @@ export default function CompareMonths({ user, setPage, setUser }) {
                 </Table>
 
                 <Box sx={{ mt: 4 }}>
-                  {data.totals.map((t, idx) => {
-                    const max = Math.max(...data.totals.map((x) => x.total), 1);
-                    const pct = Math.round((t.total / max) * 100);
-                    return (
-                      <Stack
-                        key={idx}
-                        direction="row"
-                        alignItems="center"
-                        spacing={2}
-                        sx={{ mb: 1 }}
-                      >
-                        <Typography sx={{ width: 40 }}>{meses[idx]}</Typography>
+                  <Typography variant="subtitle1" mb={1}>
+                    Distribuição por mês
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "flex-end",
+                      justifyContent: "space-between",
+                      height: 220,
+                      borderRadius: 2,
+                      bgcolor: "#fafafa",
+                      p: 2,
+                    }}
+                  >
+                    {data.totals.map((t, idx) => {
+                      const max = Math.max(...data.totals.map((x) => x.total), 1);
+                      const pct = Math.round((t.total / max) * 100);
+
+                      return (
                         <Box
+                          key={idx}
                           sx={{
                             flex: 1,
-                            backgroundColor: "#eee",
-                            borderRadius: 1,
-                            height: 10,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            mx: 0.5,
+                            height: "100%",
                           }}
                         >
+                          <Typography
+                            variant="caption"
+                            sx={{ mb: 0.5, whiteSpace: "nowrap" }}
+                          >
+                            {brl(t.total)}
+                          </Typography>
+
                           <Box
                             sx={{
-                              width: `${pct}%`,
-                              backgroundColor: "primary.main",
-                              borderRadius: 1,
-                              height: "100%",
+                              flex: 1,
+                              display: "flex",
+                              alignItems: "flex-end",
+                              width: "100%",
                             }}
-                          />
+                          >
+                            <Box
+                              sx={{
+                                width: "60%",
+                                height: `${pct}%`,
+                                minHeight: t.total > 0 ? 6 : 0,
+                                bgcolor: "primary.main",
+                                borderRadius: 999,
+                                transition: "height 0.3s",
+                              }}
+                            />
+                          </Box>
+
+                          <Typography
+                            variant="caption"
+                            sx={{ mt: 0.5, fontWeight: 500 }}
+                          >
+                            {meses[idx]}
+                          </Typography>
                         </Box>
-                        <Typography sx={{ width: 100, textAlign: "right" }}>
-                          {brl(t.total)}
-                        </Typography>
-                      </Stack>
-                    );
-                  })}
+                      );
+                    })}
+                  </Box>
                 </Box>
               </>
             )}
