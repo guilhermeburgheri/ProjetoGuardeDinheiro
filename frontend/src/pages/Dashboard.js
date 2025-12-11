@@ -94,7 +94,7 @@ export default function Dashboard({ user, setUser, setPage }) {
             <Card elevation={0} sx={{ border: "1px solid #eee" }}>
               <CardContent>
                 <Typography variant="h6">Gastos do mês</Typography>
-                <Typography variant="h5">{brl(salario)}</Typography>
+                <Typography variant="h5">{brl(totalGastos)}</Typography>
                 <Button sx={{ mt: 2 }} startIcon={<AddIcon />} variant="contained" onClick={() => setOpenExpense(true)}>
                   Adicionar gasto
                 </Button>
