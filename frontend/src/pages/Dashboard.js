@@ -73,8 +73,30 @@ export default function Dashboard({ user, setUser, setPage }) {
       />
 
       <Container maxWidth="lg" sx={{ py: 3 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
+        <Grid
+          container
+          spacing={2}
+          sx={{
+            display: "grid",
+            gap: 2,
+            gridAutoRows: "1fr",
+            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 2fr" },
+            gridTemplateAreas: {
+              xs: `
+        "meta"
+        "gastosMes"
+        "saldo"
+        "tabela"
+      `,
+              md: `
+        "meta      gastosMes  tabela"
+        "saldo     saldo      tabela"
+      `,
+            },
+            alignItems: "stretch",
+          }}
+        >
+          <Grid item sx={{ gridArea: "meta" }}>
             <Card elevation={0} sx={{ border: "1px solid #eee" }}>
               <CardContent>
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
@@ -90,8 +112,8 @@ export default function Dashboard({ user, setUser, setPage }) {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={4}>
-            <Card elevation={0} sx={{ border: "1px solid #eee" }}>
+          <Grid item sx={{ gridArea: "gastosMes" }}>
+            <Card elevation={0} sx={{ border: "1px solid #eee", height: "100%" }}>
               <CardContent>
                 <Typography variant="h6">Gastos do mês</Typography>
                 <Typography variant="h5">{brl(totalGastos)}</Typography>
@@ -102,7 +124,7 @@ export default function Dashboard({ user, setUser, setPage }) {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid item sx={{ gridArea: "saldo" }}>
             <Card elevation={0} sx={{ border: "1px solid #eee" }}>
               <CardContent>
                 <Typography variant="h6">Saldo</Typography>
@@ -114,7 +136,7 @@ export default function Dashboard({ user, setUser, setPage }) {
             </Card>
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid item sx={{ gridArea: "tabela" }}>
             <Card elevation={0} sx={{ border: "1px solid #eee" }}>
               <CardContent>
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
