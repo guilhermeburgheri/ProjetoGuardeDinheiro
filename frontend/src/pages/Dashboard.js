@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import { getExpenses, addExpense, deleteExpense, getSavings, setSavings } from "../api";
+import { useState, useEffect } from "react";
+import { getExpenses, addExpense, deleteExpense, getSavings, setSavings, getMonthlyExpenses } from "../api";
 import { Container, Grid, Card, CardContent, Typography, Button, Chip, IconButton, Table, TableHead, TableRow, TableCell, TableBody, Stack } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SavingsIcon from "@mui/icons-material/Savings";
@@ -22,23 +22,70 @@ const brl = (v) =>
     currency: "BRL",
   });
 
+const isExpenseActiveInMonth = (expense, year, month1to12) => {
+  const type = expense.recurrence_type || (expense.fixed ? "fixed" : "once");
+  const start = expense.date ? new Date(expense.date) : null;
+  if (!start) return false;
+
+  const startYear = start.getFullYear();
+  const startMonth = start.getMonth() + 1;
+
+  const startIndex = startYear * 12 + startMonth;
+  const targetIndex = year * 12 + month1to12;
+
+  if (type === "once") {
+    return startYear === year && startMonth === month1to12;
+  }
+
+  if (type === "fixed") {
+    return targetIndex >= startIndex;
+  }
+
+  if (type === "months") {
+    const n = Math.max(1, Number(expense.months_duration || 1));
+    return targetIndex >= startIndex && targetIndex < startIndex + n;
+  }
+
+  return false;
+};
+
 export default function Dashboard({ user, setUser, setPage }) {
   const { enqueueSnackbar } = useSnackbar();
   const [expenses, setExpenses] = useState([]);
   const [savings, setSavingsData] = useState(null);
   const [openSavings, setOpenSavings] = useState(false);
   const [openExpense, setOpenExpense] = useState(false);
+  const [monthTotal, setMonthTotal] = useState(0);
 
   useEffect(() => {
     getExpenses(user.id).then(setExpenses);
     getSavings(user.id).then(setSavingsData);
   }, [user]);
 
-  const totalGastos = useMemo(() => expenses.reduce((acc, e) => acc + Number(e.amount || 0), 0), [expenses]);
+  useEffect(() => {
+    if (!user?.id) return;
+    const now = new Date();
+    const year = now.getFullYear();
+    const monthIndex = now.getMonth();
+
+    getMonthlyExpenses(user.id, year).then((r) => {
+      const total = r?.totals?.[monthIndex]?.total ?? 0;
+      setMonthTotal(total);
+    });
+  }, [user, expenses.length]);
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  const expensesThisMonth = expenses.filter((e) =>
+    isExpenseActiveInMonth(e, currentYear, currentMonth)
+  );
+
   const salario = Number(savings?.salary || 0);
   const percentualGuardar = Number(savings?.goal_percentage || 0);
   const valorGuardar = (salario * percentualGuardar) / 100;
-  const sobraAposGastos = salario - totalGastos - valorGuardar;
+  const sobraAposGastos = salario - monthTotal - valorGuardar;
 
   const handleSaveSavings = async ({ salary, goal }) => {
     await setSavings(user.id, goal, salary);
@@ -116,7 +163,7 @@ export default function Dashboard({ user, setUser, setPage }) {
             <Card elevation={0} sx={{ border: "1px solid #eee", height: "100%" }}>
               <CardContent>
                 <Typography variant="h6">Gastos do mês</Typography>
-                <Typography variant="h5">{brl(totalGastos)}</Typography>
+                <Typography variant="h5">{brl(monthTotal)}</Typography>
                 <Button sx={{ mt: 2 }} startIcon={<AddIcon />} variant="contained" onClick={() => setOpenExpense(true)}>
                   Adicionar gasto
                 </Button>
@@ -141,7 +188,7 @@ export default function Dashboard({ user, setUser, setPage }) {
               <CardContent>
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                   <Typography variant="h6">Gastos</Typography>
-                  <Chip label={`${expenses.length} item(ns)`} />
+                  <Chip label={`${expensesThisMonth.length} item(ns)`} />
                 </Stack>
 
                 <Table sx={{ mt: 1 }}>
@@ -155,7 +202,7 @@ export default function Dashboard({ user, setUser, setPage }) {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {expenses.map((e) => (
+                    {expensesThisMonth.map((e) => (
                       <TableRow key={e.id} hover>
                         <TableCell>{e.description}</TableCell>
                         <TableCell align="right">{brl(e.amount)}</TableCell>
@@ -179,7 +226,7 @@ export default function Dashboard({ user, setUser, setPage }) {
                         </TableCell>
                       </TableRow>
                     ))}
-                    {expenses.length === 0 && (
+                    {expensesThisMonth.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={5} align="center" style={{ color: "#888" }}>
                           Nenhum gasto cadastrado.
