@@ -17,7 +17,8 @@ router.post("/", (req, res) => {
     return res.status(400).json({ error: "Dados incompletos" });
   }
 
-  const date = new Date().toISOString();
+  const now = new Date();
+  const date = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
   db.run(
     `INSERT INTO expenses

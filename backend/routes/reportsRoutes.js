@@ -32,11 +32,16 @@ router.get("/monthly-expenses", (req, res) => {
           if (year > cy || (year === cy && m >= cm)) addToMonth(year, m, e.amount);
         }
       } else if (type === "months") {
-        const n = Math.max(1, months);
+        const n = Math.max(1, Number(e.months_duration || 1));
+
+        const startYear = cy;
+        const startMonth = cm;
+
         for (let i = 0; i < n; i++) {
-          const d = new Date(created);
-          d.setMonth(d.getMonth() + i);
-          addToMonth(d.getFullYear(), d.getMonth() + 1, e.amount);
+          const monthIndex = (startMonth - 1) + i;
+          const y = startYear + Math.floor(monthIndex / 12);
+          const m = (monthIndex % 12) + 1;
+          addToMonth(y, m, e.amount);
         }
       }
     }
