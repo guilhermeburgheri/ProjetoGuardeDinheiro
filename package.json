@@ -2,18 +2,36 @@
   "name": "projetoguardedinheiro",
   "version": "1.0.0",
   "main": "main.js",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
   "scripts": {
     "start": "electron .",
+    "build": "electron-builder",
     "dev:backend": "cd Backend && npm run dev",
     "dev:frontend": "cd Frontend && npm start",
     "dev:electron": "cross-env ELECTRON_DEV=1 electron ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "electron": "^38.1.0",
-    "cross-env": "^7.0.3"
+    "electron-builder": "^26.7.0"
+  },
+  "build": {
+    "appId": "com.seuusuario.guardedinheiro",
+    "productName": "GuardeDinheiro",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "frontend/build/**/*",
+      "backend/**/*",
+      "main.js",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    }
   }
 }
