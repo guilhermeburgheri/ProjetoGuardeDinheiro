@@ -80,5 +80,19 @@ app.use("/expenses", expenseRoutes);
 app.use("/savings", savingRoutes);
 app.use("/reports", reportsRoutes);
 
-const PORT = 3001;
-app.listen(PORT, () => console.log(`Backend rodando na porta ${PORT}`));
+let serverInstance = null;
+
+function start(port = 3001) {
+  return new Promise((resolve) => {
+    serverInstance = app.listen(port, "127.0.0.1", () => {
+      console.log("Backend rodando na porta", port);
+      resolve(serverInstance);
+    });
+  });
+}
+
+function stop() {
+  if (serverInstance) serverInstance.close();
+}
+
+module.exports = { app, start, stop };

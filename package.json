@@ -25,10 +25,10 @@
       "output": "dist"
     },
     "files": [
-      "frontend/build/**/*",
-      "backend/**/*",
       "main.js",
-      "package.json"
+      "package.json",
+      "frontend/build/**/*",
+      "backend/**/*"
     ],
     "win": {
       "target": "nsis"
