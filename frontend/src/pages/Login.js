@@ -7,11 +7,15 @@ import {
   Typography,
   Stack,
   Link,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
 import { useSnackbar } from "notistack";
 import { login } from "../api";
 
-export default function Login({ setUser, setPage }) {
+export default function Login({ setUser, setPage, mode, toggleMode }) {
   const { enqueueSnackbar } = useSnackbar();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -58,9 +62,18 @@ export default function Login({ setUser, setPage }) {
           borderRadius: 3,
         }}
       >
-        <Typography variant="h5" fontWeight={700} mb={1}>
-          💸 GuardeDinheiro
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+          <Typography variant="h5" fontWeight={700}>
+            💸 GuardeDinheiro
+          </Typography>
+
+          <Tooltip title={mode === "dark" ? "Modo claro" : "Modo escuro"}>
+            <IconButton onClick={toggleMode} color="inherit">
+              {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
+            </IconButton>
+          </Tooltip>
+        </Box>
+
         <Typography variant="body2" color="text.secondary" mb={3}>
           Faça login para acessar seu controle financeiro.
         </Typography>

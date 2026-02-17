@@ -49,7 +49,7 @@ const isExpenseActiveInMonth = (expense, year, month1to12) => {
   return false;
 };
 
-export default function Dashboard({ user, setUser, setPage }) {
+export default function Dashboard({ user, setUser, setPage, mode, toggleMode }) {
   const { enqueueSnackbar } = useSnackbar();
   const [expenses, setExpenses] = useState([]);
   const [savings, setSavingsData] = useState(null);
@@ -117,7 +117,10 @@ export default function Dashboard({ user, setUser, setPage }) {
         onLogout={() => setUser(null)}
         onGo={setPage}
         isAdmin={user.username === "admin"}
+        mode={mode}
+        onToggleTheme={toggleMode}
       />
+
 
       <Container maxWidth="lg" sx={{ py: 3 }}>
         <Grid

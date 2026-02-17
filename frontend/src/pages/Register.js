@@ -7,11 +7,15 @@ import {
   Typography,
   Stack,
   Link,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
 import { useSnackbar } from "notistack";
 import { register } from "../api";
 
-export default function Register({ setPage }) {
+export default function Register({ setPage, mode, toggleMode }) {
   const { enqueueSnackbar } = useSnackbar();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -66,9 +70,18 @@ export default function Register({ setPage }) {
           borderRadius: 3,
         }}
       >
-        <Typography variant="h5" fontWeight={700} mb={1}>
-          Criar conta
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+          <Typography variant="h5" fontWeight={700}>
+            Criar conta
+          </Typography>
+
+          <Tooltip title={mode === "dark" ? "Modo claro" : "Modo escuro"}>
+            <IconButton onClick={toggleMode} color="inherit">
+              {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
+            </IconButton>
+          </Tooltip>
+        </Box>
+
         <Typography variant="body2" color="text.secondary" mb={3}>
           Cadastre um usuário para começar a organizar suas finanças.
         </Typography>

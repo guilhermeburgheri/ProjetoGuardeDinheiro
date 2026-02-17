@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -9,31 +11,100 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState("login");
 
+  const [mode, setMode] = useState("light");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("themeMode");
+    if (saved) setMode(saved);
+  }, []);
+
+  const toggleMode = () => {
+    setMode((prev) => {
+      const next = prev === "light" ? "dark" : "light";
+      localStorage.setItem("themeMode", next);
+      return next;
+    });
+  };
+
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode,
+          ...(mode === "dark" && {
+            background: {
+              default: "#121212",
+              paper: "#1e1e1e",
+            },
+          }),
+        },
+      }),
+    [mode]
+  );
+
+  let content;
+
   if (!user) {
-    return page === "login" ? (
-      <Login setUser={setUser} setPage={setPage} />
-    ) : (
-      <Register setPage={setPage} />
+    content =
+      page === "login" ? (
+        <Login setUser={setUser}
+          setPage={setPage}
+          mode={mode}
+          toggleMode={toggleMode}
+        />
+      ) : (
+        <Register
+          setPage={setPage}
+          mode={mode}
+          toggleMode={toggleMode}
+        />
+      );
+  } else if (page === "dashboard") {
+    content = (
+      <Dashboard
+        user={user}
+        setUser={setUser}
+        setPage={setPage}
+        mode={mode}
+        toggleMode={toggleMode}
+      />
     );
-  }
-
-  if (page === "dashboard") {
-    return <Dashboard user={user} setUser={setUser} setPage={setPage} />;
-  }
-
-  if (page === "compare") {
-    return (
+  } else if (page === "compare") {
+    content = (
       <CompareMonths
         user={user}
         setPage={setPage}
         setUser={setUser}
+        mode={mode}
+        toggleMode={toggleMode}
+      />
+    );
+  } else if (page === "manageUsers") {
+    content = (
+      <ManageUsers
+        user={user}
+        setPage={setPage}
+        setUser={setUser}
+        mode={mode}
+        toggleMode={toggleMode}
+      />
+    );
+  } else {
+    content = (
+      <Dashboard
+        user={user}
+        setUser={setUser}
+        setPage={setPage}
+        mode={mode}
+        toggleMode={toggleMode}
       />
     );
   }
 
-if (page === "manageUsers") {
-  return <ManageUsers user={user} setPage={setPage} setUser={setUser} />;
-}
-
-  return <Dashboard user={user} setUser={setUser} setPage={setPage} />;
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {content}
+    </ThemeProvider>
+  );
 }

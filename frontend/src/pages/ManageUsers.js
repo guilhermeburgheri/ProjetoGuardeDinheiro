@@ -20,7 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Navbar from "../components/Navbar";
 import { useSnackbar } from "notistack";
 
-export default function ManageUsers({ user, setPage, setUser }) {
+export default function ManageUsers({ user, setPage, setUser, mode, toggleMode }) {
   const { enqueueSnackbar } = useSnackbar();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -104,6 +104,8 @@ export default function ManageUsers({ user, setPage, setUser }) {
         onLogout={() => setUser(null)}
         onGo={setPage}
         isAdmin={true}
+        mode={mode}
+        onToggleTheme={toggleMode}
       />
 
       <Container maxWidth="md" sx={{ py: 3 }}>

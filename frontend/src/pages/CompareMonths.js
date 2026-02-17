@@ -3,12 +3,12 @@ import { getMonthlyExpenses } from "../api";
 import { Container, Card, CardContent, Typography, Table, TableHead, TableRow, TableCell, TableBody, CircularProgress, Box, Stack, TextField, Divider } from "@mui/material";
 import Navbar from "../components/Navbar";
 
-export default function CompareMonths({ user, setPage, setUser }) {
+export default function CompareMonths({ user, setPage, setUser, mode, toggleMode }) {
   const [year, setYear] = useState(new Date().getFullYear());
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+  const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
   const brl = (v) =>
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -29,10 +29,12 @@ export default function CompareMonths({ user, setPage, setUser }) {
         onLogout={() => setUser(null)}
         onGo={setPage}
         isAdmin={user.username === "admin"}
+        mode={mode}
+        onToggleTheme={toggleMode}
       />
 
       <Container maxWidth="lg" sx={{ py: 3 }}>
-        <Card elevation={0} sx={{ border: "1px solid #eee" }}>
+        <Card elevation={0} sx={{ border: 1, borderColor: "divider" }}>
           <CardContent>
             <Stack
               direction={{ xs: "column", sm: "row" }}
@@ -105,8 +107,10 @@ export default function CompareMonths({ user, setPage, setUser }) {
                       justifyContent: "space-between",
                       height: 220,
                       borderRadius: 2,
-                      bgcolor: "#fafafa",
+                      bgcolor: "background.paper",
                       p: 2,
+                      border: 1,
+                      borderColor: "divider",
                     }}
                   >
                     {data.totals.map((t, idx) => {
