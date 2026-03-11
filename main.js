@@ -5,12 +5,15 @@ const { pathToFileURL } = require("url");
 let backend = null;
 
 async function startBackend() {
-  backend = require(path.join(app.getAppPath(), "backend", "server.js"));
-  await backend.start(3001);
+  const backendEntry = require(path.join(app.getAppPath(), "backend", "server.js"));
+  backend = backendEntry;
+  await backendEntry.start(3001);
 }
 
 async function createWindow() {
-  if (app.isPackaged) {
+  const isDev = !app.isPackaged;
+
+  if (!isDev) {
     await startBackend();
   }
 
@@ -23,14 +26,13 @@ async function createWindow() {
     },
   });
 
-  if (!app.isPackaged) {
+  if (isDev) {
     win.loadURL("http://localhost:3000");
     win.webContents.openDevTools();
-    return;
+  } else {
+    const indexPath = path.join(app.getAppPath(), "frontend", "build", "index.html");
+    win.loadURL(pathToFileURL(indexPath).toString());
   }
-
-  const indexPath = path.join(app.getAppPath(), "frontend", "build", "index.html");
-  win.loadURL(pathToFileURL(indexPath).toString());
 }
 
 app.whenReady().then(createWindow);

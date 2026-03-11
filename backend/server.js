@@ -95,4 +95,8 @@ function stop() {
   if (serverInstance) serverInstance.close();
 }
 
+if (require.main === module) {
+  start(3001);
+}
+
 module.exports = { app, start, stop };

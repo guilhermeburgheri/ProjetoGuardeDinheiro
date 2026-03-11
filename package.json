@@ -8,15 +8,18 @@
   "keywords": [],
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder",
-    "dev:backend": "cd Backend && npm run dev",
-    "dev:frontend": "cd Frontend && npm start",
-    "dev:electron": "cross-env ELECTRON_DEV=1 electron ."
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:electron\"",
+    "dev:backend": "cd backend && npm start",
+    "dev:frontend": "cd frontend && npm start",
+    "dev:electron": "wait-on http://localhost:3000 && electron .",
+    "build": "electron-builder"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "cross-env": "^7.0.3",
     "electron": "^38.1.0",
-    "electron-builder": "^26.7.0"
+    "electron-builder": "^26.7.0",
+    "wait-on": "^9.0.4"
   },
   "build": {
     "appId": "com.seuusuario.guardedinheiro",
