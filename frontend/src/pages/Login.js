@@ -64,7 +64,7 @@ export default function Login({ setUser, setPage, mode, toggleMode }) {
       >
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
           <Typography variant="h5" fontWeight={700}>
-            💸 GuardeDinheiro
+            💸 Guarde Dinheiro
           </Typography>
 
           <Tooltip title={mode === "dark" ? "Modo claro" : "Modo escuro"}>

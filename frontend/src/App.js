@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ManageUsers from "./pages/ManageUsers";
 import CompareMonths from "./pages/CompareMonths";
+import Investments from "./pages/Investments";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -85,6 +86,16 @@ export default function App() {
         user={user}
         setPage={setPage}
         setUser={setUser}
+        mode={mode}
+        toggleMode={toggleMode}
+      />
+    );
+  } else if (page === "investments") {
+    content = (
+      <Investments
+        user={user}
+        setUser={setUser}
+        setPage={setPage}
         mode={mode}
         toggleMode={toggleMode}
       />

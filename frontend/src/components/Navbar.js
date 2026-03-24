@@ -7,12 +7,13 @@ export default function Navbar({ user, onLogout, onGo, isAdmin, mode, onToggleTh
     <AppBar position="sticky" elevation={1} color="inherit" sx={{ borderBottom: "1px solid #eee" }}>
       <Toolbar sx={{ gap: 2 }}>
         <Typography variant="h6" sx={{ flex: 1, fontWeight: 700 }}>
-          💸 GuardeDinheiro
+          💸 Guarde Dinheiro
         </Typography>
 
         <Box sx={{ display: "flex", gap: 1 }}>
           <Button onClick={() => onGo("dashboard")} variant="text">Dashboard</Button>
           <Button onClick={() => onGo("compare")} variant="text">Comparar meses</Button>
+          <Button onClick={() => onGo("investments")} variant="text">Investimentos</Button>
           {isAdmin && <Button onClick={() => onGo("manageUsers")} variant="text">Gerenciar</Button>}
         </Box>
 
