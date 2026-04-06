@@ -16,6 +16,16 @@ import {
   Button,
   Divider,
 } from "@mui/material";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+} from "recharts";
 import Navbar from "../components/Navbar";
 
 const brl = (v) =>
@@ -41,11 +51,13 @@ const calculateSimulation = ({
 
   let balance = initial;
   const rows = [];
+  let accumulatedContributions = initial;
 
   for (let month = 1; month <= totalMonths; month++) {
     const startBalance = balance;
     const profit = startBalance * rate;
     balance = startBalance + profit + contribution;
+    accumulatedContributions += contribution;
 
     rows.push({
       month,
@@ -53,6 +65,7 @@ const calculateSimulation = ({
       contribution,
       profit,
       endBalance: balance,
+      investedAmount: accumulatedContributions,
     });
   }
 
@@ -63,18 +76,13 @@ const calculateSimulation = ({
   const totalContributed = initial + contribution * totalMonths;
   const totalProfit = finalBalance - totalContributed;
 
-  // Regra de exibição para não poluir a tabela
-  const displayedRows = rows.filter(
-    (row) => row.month === 1 || row.month % 3 === 0 || row.month === totalMonths
-  );
-
   return {
     grossFinalBalance,
     withdrawalDiscount,
     finalBalance,
     totalContributed,
     totalProfit,
-    rows: displayedRows,
+    rows,
   };
 };
 
@@ -175,6 +183,21 @@ export default function Investments({
     const updatedList = savedInvestments.filter((item) => item.id !== id);
     SaveInvestmentsList(updatedList);
   };
+
+  const chartData = simulation.rows.map((row) => ({
+    month: `Mês ${row.month}`,
+    saldoFinal: row.endBalance,
+    totalInvestido: row.investedAmount,
+    rendimento: row.profit,
+  }));
+
+  const formatChartValue = (value) =>
+    Number(value || 0).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
 
   return (
     <>
@@ -345,36 +368,48 @@ export default function Investments({
                   Evolução do investimento atual
                 </Typography>
 
-                <Table sx={{ mt: 1 }}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Mês</TableCell>
-                      <TableCell align="right">Saldo inicial</TableCell>
-                      <TableCell align="right">Aporte</TableCell>
-                      <TableCell align="right">Rendimento</TableCell>
-                      <TableCell align="right">Saldo final</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {simulation.rows.map((row) => (
-                      <TableRow key={row.month} hover>
-                        <TableCell>{row.month}</TableCell>
-                        <TableCell align="right">{brl(row.startBalance)}</TableCell>
-                        <TableCell align="right">{brl(row.contribution)}</TableCell>
-                        <TableCell align="right">{brl(row.profit)}</TableCell>
-                        <TableCell align="right">{brl(row.endBalance)}</TableCell>
-                      </TableRow>
-                    ))}
+                {chartData.length > 0 ? (
+                  <div style={{ width: "100%", height: 350, marginTop: 16 }}>
+                    <ResponsiveContainer>
+                      <LineChart
+                        data={chartData}
+                        margin={{ top: 10, right: 20, left: 35, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis
+                          width={95}
+                          tickFormatter={formatChartValue}
+                        />
+                        <Tooltip formatter={(value) => brl(value)} />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="saldoFinal"
+                          name="Saldo final"
+                          stroke="#1976d2"
+                          strokeWidth={3}
+                          dot={{ r: 2 }}
+                          activeDot={{ r: 6 }}
+                        />
 
-                    {simulation.rows.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={5} align="center">
-                          Nenhum resultado para exibir.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                        <Line
+                          type="monotone"
+                          dataKey="totalInvestido"
+                          name="Total investido"
+                          stroke="#2e7d32"
+                          strokeWidth={3}
+                          dot={{ r: 2 }}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <Typography align="center" sx={{ mt: 2 }}>
+                    Nenhum resultado para exibir.
+                  </Typography>
+                )}
               </CardContent>
             </Card>
           </Grid>
