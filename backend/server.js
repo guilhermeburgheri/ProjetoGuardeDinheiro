@@ -59,6 +59,15 @@ db.serialize(() => {
       }
     }
   );
+
+  db.run(
+    "ALTER TABLE expenses ADD COLUMN kind TEXT DEFAULT 'expense'",
+    (err) => {
+      if (err && !err.message.includes("duplicate column")) {
+        console.log("Erro ao adicionar kind:", err.message);
+      }
+    }
+  );
 });
 
 const bcrypt = require("bcryptjs");

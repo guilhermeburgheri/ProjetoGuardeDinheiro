@@ -23,11 +23,11 @@ export async function getExpenses(userId) {
     return res.json();
 }
 
-export async function addExpense(userId, description, amount, fixed, recurrence_type, months_duration) {
+export async function addExpense(userId, description, amount, fixed, recurrence_type, months_duration, date = null, kind = "expense") {
     const res = await fetch(`${API_URL}/expenses`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, description, amount, fixed, recurrence_type, months_duration }),
+        body: JSON.stringify({ userId, description, amount, fixed, recurrence_type, months_duration, date, kind }),
     });
     return res.json();
 }

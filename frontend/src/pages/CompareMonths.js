@@ -1,26 +1,56 @@
-import { useEffect, useState } from "react";
-import { getMonthlyExpenses } from "../api";
-import { Container, Card, CardContent, Typography, Table, TableHead, TableRow, TableCell, TableBody, CircularProgress, Box, Stack, TextField, Divider } from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
+import { addExpense, getMonthlyExpenses } from "../api";
+import { Container, Card, CardContent, Typography, Table, TableHead, TableRow, TableCell, TableBody, CircularProgress, Box, Stack, TextField, Divider, Button, MenuItem } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import Navbar from "../components/Navbar";
+import AddExpenseDialog from "../components/AddExpenseDialog";
+import { useSnackbar } from "notistack";
 
 export default function CompareMonths({ user, setPage, setUser, mode, toggleMode }) {
+  const { enqueueSnackbar } = useSnackbar();
   const [year, setYear] = useState(new Date().getFullYear());
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [openExpense, setOpenExpense] = useState(false);
 
   const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
   const brl = (v) =>
-    v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  useEffect(() => {
+  const selectedMonthValue = `${year}-${String(selectedMonth).padStart(2, "0")}`;
+
+  const loadData = useCallback(() => {
     setLoading(true);
     getMonthlyExpenses(user.id, year).then((res) => {
       setData(res);
       setLoading(false);
     });
-  }, [user, year]);
+  }, [user.id, year]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const totalAnual = data?.totals?.reduce((s, x) => s + x.total, 0) ?? 0;
+  const totalDespesas = data?.totals?.reduce((s, x) => s + Number(x.expenses || 0), 0) ?? 0;
+  const totalReceitas = data?.totals?.reduce((s, x) => s + Number(x.incomes || 0), 0) ?? 0;
+
+  const handleAddExpense = async (payload) => {
+    await addExpense(
+      user.id,
+      payload.description,
+      payload.amount,
+      payload.fixed,
+      payload.recurrence_type,
+      payload.months_duration,
+      payload.date,
+      "expense"
+    );
+    enqueueSnackbar(`Gasto adicionado em ${meses[selectedMonth - 1]}/${year}!`, { variant: "success" });
+    setOpenExpense(false);
+    loadData();
+  };
 
   return (
     <>
@@ -37,8 +67,8 @@ export default function CompareMonths({ user, setPage, setUser, mode, toggleMode
         <Card elevation={0} sx={{ border: 1, borderColor: "divider" }}>
           <CardContent>
             <Stack
-              direction={{ xs: "column", sm: "row" }}
-              alignItems="center"
+              direction={{ xs: "column", md: "row" }}
+              alignItems={{ xs: "stretch", md: "center" }}
               justifyContent="space-between"
               spacing={2}
             >
@@ -46,14 +76,33 @@ export default function CompareMonths({ user, setPage, setUser, mode, toggleMode
                 📊 Comparativo de Gastos Mensais
               </Typography>
 
-              <TextField
-                label="Ano"
-                type="number"
-                value={year}
-                onChange={(e) => setYear(Number(e.target.value))}
-                sx={{ width: 120 }}
-                size="small"
-              />
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ xs: "stretch", sm: "center" }}>
+                <TextField
+                  label="Ano"
+                  type="number"
+                  value={year}
+                  onChange={(e) => setYear(Number(e.target.value))}
+                  sx={{ width: { xs: "100%", sm: 120 } }}
+                  size="small"
+                />
+
+                <TextField
+                  select
+                  label="Mês"
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                  sx={{ width: { xs: "100%", sm: 130 } }}
+                  size="small"
+                >
+                  {meses.map((m, idx) => (
+                    <MenuItem key={m} value={idx + 1}>{m}</MenuItem>
+                  ))}
+                </TextField>
+
+                <Button startIcon={<AddIcon />} variant="contained" onClick={() => setOpenExpense(true)}>
+                  Adicionar despesa
+                </Button>
+              </Stack>
             </Stack>
 
             <Divider sx={{ my: 2 }} />
@@ -67,6 +116,7 @@ export default function CompareMonths({ user, setPage, setUser, mode, toggleMode
                 <Table>
                   <TableHead>
                     <TableRow>
+                      <TableCell sx={{ fontWeight: 600 }}>Tipo</TableCell>
                       {meses.map((m) => (
                         <TableCell
                           key={m}
@@ -83,12 +133,35 @@ export default function CompareMonths({ user, setPage, setUser, mode, toggleMode
                   </TableHead>
                   <TableBody>
                     <TableRow hover>
+                      <TableCell>Despesas</TableCell>
                       {data.totals.map((t) => (
-                        <TableCell key={t.month} align="center">
-                          {brl(t.total)}
+                        <TableCell key={`expenses-${t.month}`} align="center">
+                          {brl(t.expenses)}
                         </TableCell>
                       ))}
                       <TableCell align="center" sx={{ fontWeight: 600 }}>
+                        {brl(totalDespesas)}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell>Receitas</TableCell>
+                      {data.totals.map((t) => (
+                        <TableCell key={`incomes-${t.month}`} align="center" sx={{ color: "success.main" }}>
+                          {brl(t.incomes)}
+                        </TableCell>
+                      ))}
+                      <TableCell align="center" sx={{ fontWeight: 600, color: "success.main" }}>
+                        {brl(totalReceitas)}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{ fontWeight: 600 }}>Resultado</TableCell>
+                      {data.totals.map((t) => (
+                        <TableCell key={`total-${t.month}`} align="center" sx={{ fontWeight: 600, color: t.total <= 0 ? "success.main" : "text.primary" }}>
+                          {brl(t.total)}
+                        </TableCell>
+                      ))}
+                      <TableCell align="center" sx={{ fontWeight: 700 }}>
                         {brl(totalAnual)}
                       </TableCell>
                     </TableRow>
@@ -114,8 +187,8 @@ export default function CompareMonths({ user, setPage, setUser, mode, toggleMode
                     }}
                   >
                     {data.totals.map((t, idx) => {
-                      const max = Math.max(...data.totals.map((x) => x.total), 1);
-                      const pct = Math.round((t.total / max) * 100);
+                      const max = Math.max(...data.totals.map((x) => Math.abs(x.total)), 1);
+                      const pct = Math.round((Math.abs(t.total) / max) * 100);
 
                       return (
                         <Box
@@ -148,8 +221,8 @@ export default function CompareMonths({ user, setPage, setUser, mode, toggleMode
                               sx={{
                                 width: "60%",
                                 height: `${pct}%`,
-                                minHeight: t.total > 0 ? 6 : 0,
-                                bgcolor: "primary.main",
+                                minHeight: t.total !== 0 ? 6 : 0,
+                                bgcolor: t.total <= 0 ? "success.main" : "primary.main",
                                 borderRadius: 999,
                                 transition: "height 0.3s",
                               }}
@@ -172,6 +245,14 @@ export default function CompareMonths({ user, setPage, setUser, mode, toggleMode
           </CardContent>
         </Card>
       </Container>
+
+      <AddExpenseDialog
+        open={openExpense}
+        onClose={() => setOpenExpense(false)}
+        onSave={handleAddExpense}
+        kind="expense"
+        initialMonth={selectedMonthValue}
+      />
     </>
   );
 }
