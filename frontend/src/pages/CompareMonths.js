@@ -157,7 +157,14 @@ export default function CompareMonths({ user, setPage, setUser, mode, toggleMode
                     <TableRow hover>
                       <TableCell sx={{ fontWeight: 600 }}>Resultado</TableCell>
                       {data.totals.map((t) => (
-                        <TableCell key={`total-${t.month}`} align="center" sx={{ fontWeight: 600, color: t.total <= 0 ? "success.main" : "text.primary" }}>
+                        <TableCell
+                          key={`total-${t.month}`}
+                          align="center"
+                          sx={{
+                            fontWeight: 600,
+                            color: t.total < 0 ? "error.main" : t.total > 0 ? "success.main" : "text.primary",
+                          }}
+                        >
                           {brl(t.total)}
                         </TableCell>
                       ))}
@@ -176,19 +183,40 @@ export default function CompareMonths({ user, setPage, setUser, mode, toggleMode
                   <Box
                     sx={{
                       display: "flex",
-                      alignItems: "flex-end",
+                      alignItems: "stretch",
                       justifyContent: "space-between",
-                      height: 220,
+                      height: 260,
                       borderRadius: 2,
                       bgcolor: "background.paper",
                       p: 2,
                       border: 1,
                       borderColor: "divider",
+                      position: "relative",
                     }}
                   >
+                    {/* Linha do zero */}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        left: 16,
+                        right: 16,
+                        top: "50%",
+                        borderTop: 1,
+                        borderColor: "divider",
+                      }}
+                    />
+
                     {data.totals.map((t, idx) => {
-                      const max = Math.max(...data.totals.map((x) => Math.abs(x.total)), 1);
-                      const pct = Math.round((Math.abs(t.total) / max) * 100);
+                      const max = Math.max(
+                        ...data.totals.map((x) => Math.abs(Number(x.total || 0))),
+                        1
+                      );
+
+                      const value = Number(t.total || 0);
+                      const pct = Math.round((Math.abs(value) / max) * 100);
+
+                      const isPositive = value > 0;
+                      const isNegative = value < 0;
 
                       return (
                         <Box
@@ -200,33 +228,69 @@ export default function CompareMonths({ user, setPage, setUser, mode, toggleMode
                             alignItems: "center",
                             mx: 0.5,
                             height: "100%",
+                            zIndex: 1,
                           }}
                         >
                           <Typography
                             variant="caption"
                             sx={{ mb: 0.5, whiteSpace: "nowrap" }}
                           >
-                            {brl(t.total)}
+                            {brl(value)}
                           </Typography>
 
                           <Box
                             sx={{
                               flex: 1,
                               display: "flex",
-                              alignItems: "flex-end",
+                              flexDirection: "column",
                               width: "100%",
                             }}
                           >
+                            {/* Área acima do zero */}
                             <Box
                               sx={{
-                                width: "60%",
-                                height: `${pct}%`,
-                                minHeight: t.total !== 0 ? 6 : 0,
-                                bgcolor: t.total <= 0 ? "success.main" : "primary.main",
-                                borderRadius: 999,
-                                transition: "height 0.3s",
+                                height: "50%",
+                                display: "flex",
+                                alignItems: "flex-end",
+                                justifyContent: "center",
                               }}
-                            />
+                            >
+                              {isPositive && (
+                                <Box
+                                  sx={{
+                                    width: "60%",
+                                    height: `${pct}%`,
+                                    minHeight: 6,
+                                    bgcolor: "success.main",
+                                    borderRadius: "999px 999px 0 0",
+                                    transition: "height 0.3s",
+                                  }}
+                                />
+                              )}
+                            </Box>
+
+                            {/* Área abaixo do zero */}
+                            <Box
+                              sx={{
+                                height: "50%",
+                                display: "flex",
+                                alignItems: "flex-start",
+                                justifyContent: "center",
+                              }}
+                            >
+                              {isNegative && (
+                                <Box
+                                  sx={{
+                                    width: "60%",
+                                    height: `${pct}%`,
+                                    minHeight: 6,
+                                    bgcolor: "error.main",
+                                    borderRadius: "0 0 999px 999px",
+                                    transition: "height 0.3s",
+                                  }}
+                                />
+                              )}
+                            </Box>
                           </Box>
 
                           <Typography

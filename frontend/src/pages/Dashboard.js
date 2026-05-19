@@ -101,7 +101,7 @@ export default function Dashboard({ user, setUser, setPage, mode, toggleMode }) 
   const monthTotal = Number(monthSummary.total || 0);
   const receitasMes = Number(monthSummary.incomes || 0);
   const gastosBrutosMes = Number(monthSummary.expenses || 0);
-  const sobraAposGastos = salario - monthTotal - valorGuardar;
+  const sobraAposGastos = salario + monthTotal - valorGuardar;
 
   const handleSaveSavings = async ({ salary, goal }) => {
     await setSavings(user.id, goal, salary);
